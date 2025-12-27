@@ -19,11 +19,8 @@ import {
 import { auth, db } from "../config/firebase";
 
 // === Types & Interfaces ===
-
-// Role type
 type UserRole = "patient" | "physiotherapist" | null;
 
-// Profile data for physiotherapist
 interface PhysioProfile extends DocumentData {
   email: string;
   role: "physiotherapist";
@@ -35,17 +32,14 @@ interface PhysioProfile extends DocumentData {
   updatedAt: Timestamp | null;
 }
 
-// Profile data for patient (minimal for now)
 interface PatientProfile extends DocumentData {
   passwordChanged?: boolean;
   selected_avatar_id?: string;
-  // Add more patient-specific fields later
+  // Add more patient fields as needed
 }
 
-// Union of possible profile shapes
 type UserProfile = PhysioProfile | PatientProfile | null;
 
-// Auth context value type
 interface AuthContextType {
   currentUser: User | null;
   userRole: UserRole;
@@ -61,7 +55,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
 }
 
-// Create context with proper type
+// Create context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Custom hook
@@ -73,7 +67,6 @@ export function useAuth(): AuthContextType {
   return context;
 }
 
-// Provider component props
 interface AuthProviderProps {
   children: ReactNode;
 }
@@ -84,7 +77,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [userProfile, setUserProfile] = useState<UserProfile>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Load role and profile from Firestore
   const loadUserProfile = async (uid: string) => {
     try {
       // Check Physiotherapists collection first
@@ -96,7 +88,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return;
       }
 
-      // Then check Patients (Users collection)
+      // Then check Patients (in Users collection)
       const patientSnap = await getDoc(doc(db, "Users", uid));
       if (patientSnap.exists()) {
         const data = patientSnap.data() as PatientProfile;
@@ -105,17 +97,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return;
       }
 
-      console.warn("No profile found for user:", uid);
+      // No profile found
+      console.warn("No profile document found for user:", uid);
       setUserRole(null);
       setUserProfile(null);
     } catch (error: any) {
-      console.warn("Profile fetch failed:", error.message);
+      console.error("Error loading user profile:", error);
       setUserRole(null);
       setUserProfile(null);
     }
   };
 
-  // Register function (currently only physiotherapists)
+  // Register (only physiotherapists for now)
   const register = async (
     email: string,
     password: string,
@@ -123,50 +116,41 @@ export function AuthProvider({ children }: AuthProviderProps) {
     profileData: Partial<PhysioProfile> = {}
   ): Promise<UserCredential> => {
     if (role !== "physiotherapist") {
-      throw new Error("Patient registration is not available at this time.");
+      throw new Error("Patient registration is handled separately.");
     }
 
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
 
-      // Create physiotherapist document
-      await setDoc(doc(db, "Physiotherapists", user.uid), {
-        email: user.email,
-        role: "physiotherapist",
-        name: profileData.name || "",
-        licenseNumber: profileData.licenseNumber || "",
-        phoneNumber: profileData.phoneNumber || "",
-        specialization: profileData.specialization || "",
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
+    await setDoc(doc(db, "Physiotherapists", user.uid), {
+      email: user.email,
+      role: "physiotherapist",
+      name: profileData.name || "",
+      licenseNumber: profileData.licenseNumber || "",
+      phoneNumber: profileData.phoneNumber || "",
+      specialization: profileData.specialization || "",
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
 
-      // Load fresh profile
-      await loadUserProfile(user.uid);
-
-      return userCredential;
-    } catch (err) {
-      throw err;
-    }
+    await loadUserProfile(user.uid);
+    return userCredential;
   };
 
-  // Login function
   const login = async (email: string, password: string): Promise<UserCredential> => {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     await loadUserProfile(userCredential.user.uid);
     return userCredential;
   };
 
-  // Logout function
   const logout = async (): Promise<void> => {
+    await signOut(auth);
+    setCurrentUser(null);
     setUserRole(null);
     setUserProfile(null);
-    setCurrentUser(null);
-    await signOut(auth);
   };
 
-  // Auth state observer
+  // Listen to auth state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
@@ -195,19 +179,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     logout,
   };
 
+  // Always render children — routing and UI should handle loading states
   return (
     <AuthContext.Provider value={value}>
-      {loading ? (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-sky-800 mx-auto mb-8"></div>
-            <p className="text-2xl font-medium text-gray-700">Loading your dashboard...</p>
-            <p className="text-gray-500 mt-4">Please wait a moment</p>
-          </div>
-        </div>
-      ) : (
-        children
-      )}
+      {children}
     </AuthContext.Provider>
   );
 }

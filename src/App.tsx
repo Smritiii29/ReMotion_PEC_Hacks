@@ -1,11 +1,15 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
+import WithPrivateRoute from "./utils/WithPrivateRoute";
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 
-/* ================= Auth ================= */
-import AuthPage from "./pages/Auth"; // Make sure this path matches where you saved the file above
+/* ================= PUBLIC ================= */
+import LandingPage from "./components/LandingPage";
+import AuthPage from "./pages/Auth";
 
-/* ================= Patient ================= */
+/* ================= PATIENT ================= */
 import PatientIndex from "./patient/Index";
 import Home from "./patient/Home";
 import Avatars from "./patient/Avatars";
@@ -14,7 +18,7 @@ import Progress from "./patient/Progress1";
 import Messages from "./patient/Messages";
 import PatientNotFound from "./patient/NotFound";
 
-/* ================= Therapist ================= */
+/* ================= THERAPIST ================= */
 import TherapistIndex from "./therapist/Index";
 import Patients from "./therapist/Patients";
 import Analytics from "./therapist/Analytics";
@@ -24,19 +28,24 @@ import TherapistNotFound from "./therapist/NotFound";
 
 export default function App() {
   return (
-    <>
+    <AuthProvider>
       <Toaster />
       <Sonner />
 
       <Routes>
-        {/* Root -> Redirect to Auth */}
-        <Route path="/" element={<Navigate to="/auth" replace />} />
+        {/* ================= PUBLIC ================= */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<AuthPage />} />
 
-        {/* ================= AUTHENTICATION ================= */}
-        <Route path="/auth" element={<AuthPage />} />
-
-        {/* ================= PATIENT ================= */}
-        <Route path="/patient" element={<PatientIndex />}>
+        {/* ================= PATIENT (PROTECTED) ================= */}
+        <Route
+          path="/patient"
+          element={
+            <WithPrivateRoute requiredRole="patient">
+              <PatientIndex />
+            </WithPrivateRoute>
+          }
+        >
           <Route index element={<Navigate to="home" replace />} />
           <Route path="home" element={<Home />} />
           <Route path="avatars" element={<Avatars />} />
@@ -46,8 +55,15 @@ export default function App() {
           <Route path="*" element={<PatientNotFound />} />
         </Route>
 
-        {/* ================= THERAPIST ================= */}
-        <Route path="/therapist" element={<TherapistIndex />}>
+        {/* ================= THERAPIST (PROTECTED) ================= */}
+        <Route
+          path="/therapist"
+          element={
+            <WithPrivateRoute requiredRole="physiotherapist">
+              <TherapistIndex />
+            </WithPrivateRoute>
+          }
+        >
           <Route index element={<Navigate to="patients" replace />} />
           <Route path="patients" element={<Patients />} />
           <Route path="analytics" element={<Analytics />} />
@@ -56,9 +72,9 @@ export default function App() {
           <Route path="*" element={<TherapistNotFound />} />
         </Route>
 
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/auth" replace />} />
+        {/* ================= FALLBACK ================= */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </>
+    </AuthProvider>
   );
 }
