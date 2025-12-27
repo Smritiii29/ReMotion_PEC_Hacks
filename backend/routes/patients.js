@@ -1,4 +1,3 @@
-// src/routes/patientRouter.js
 import { Router } from "express";
 import { db } from "../config/firebaseAdmin.js"; // Now imports correctly
 

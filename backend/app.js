@@ -1,9 +1,11 @@
 import express from 'express';
 import { PORT } from './env.js';
+import cors from 'cors';
 
 import patientRouter from './routes/patients.js';
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 app.use('/api/v1/patients', patientRouter);
