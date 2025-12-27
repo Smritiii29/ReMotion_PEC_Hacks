@@ -217,10 +217,20 @@ export function AuthProvider({ children }) {
 
   // Logout
   const logout = async () => {
-    setUserRole(null);
-    setUserProfile(null);
-    return signOut(auth);
-  };
+  // 1️⃣ Tell backend to clear cookie
+  await fetch("http://localhost:3000/logout", {
+    method: "POST",
+    credentials: "include",
+  });
+
+  // 2️⃣ Clear frontend state
+  setUserRole(null);
+  setUserProfile(null);
+
+  // 3️⃣ Firebase logout
+  await signOut(auth);
+};
+
 
   // Auth observer
   useEffect(() => {
