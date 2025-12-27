@@ -1,0 +1,58 @@
+// import { XCircleIcon } from "@heroicons/react/solid";
+
+// export default function ErrorMessage({ message, onClose }) {
+//   if (!message) return null;
+
+//   return (
+//     <div className="flex justify-center">
+//       <div className="rounded-md max-w-md w-full bg-red-50 p-4 mt-4">
+//         <div className="flex">
+//           <div className="flex-shrink-0">
+//             <XCircleIcon
+//               onClick={onClose}
+//               className="h-5 w-5 text-red-400 cursor-pointer"
+//               aria-hidden="true"
+//             />
+//           </div>
+//           <div className="ml-3">
+//             <h3 className="text-sm font-medium text-red-800">
+//               {message}
+//             </h3>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+import { XCircleIcon } from "@heroicons/react/solid";
+
+// Define props with optional types to match original behavior
+interface ErrorMessageProps {
+  message?: string | null;  // can be undefined or null
+  onClose?: () => void;     // optional function
+}
+
+export default function ErrorMessage({ message, onClose }: ErrorMessageProps) {
+  if (!message) return null;
+
+  return (
+    <div className="flex justify-center">
+      <div className="rounded-md max-w-md w-full bg-red-50 p-4 mt-4">
+        <div className="flex">
+          <div className="flex-shrink-0">
+            <XCircleIcon
+              onClick={onClose}
+              className="h-5 w-5 text-red-400 cursor-pointer"
+              aria-hidden="true"
+            />
+          </div>
+          <div className="ml-3">
+            <h3 className="text-sm font-medium text-red-800">
+              {message}
+            </h3>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
