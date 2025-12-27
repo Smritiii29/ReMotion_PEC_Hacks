@@ -1,0 +1,120 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer utilities {
+  .font-poppins {
+    font-family: 'Poppins', sans-serif;
+  }
+}
+@layer base {
+  :root {
+    --background: 168 40% 95%;
+    --foreground: 180 30% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 180 30% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 180 30% 15%;
+
+    --primary: 174 40% 22%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 160 52% 78%;
+    --secondary-foreground: 180 30% 15%;
+
+    --muted: 168 30% 90%;
+    --muted-foreground: 180 15% 45%;
+
+    --accent: 174 35% 35%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 168 20% 85%;
+    --input: 168 20% 85%;
+    --ring: 174 40% 22%;
+
+    --radius: 1rem;
+
+    /* Custom colors for the dashboard */
+    --mint-card: 156 52% 78%;
+    --mint-card-foreground: 180 30% 15%;
+    
+    --teal-stat: 174 35% 45%;
+    --teal-stat-foreground: 0 0% 100%;
+    
+    --pink-stat: 340 60% 92%;
+    --pink-stat-foreground: 180 30% 15%;
+    
+    --peach-stat: 30 55% 88%;
+    --peach-stat-foreground: 180 30% 15%;
+    
+    --dark-teal: 180 50% 18%;
+    --dark-teal-foreground: 0 0% 100%;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 180 15% 45%;
+    --sidebar-primary: 174 40% 22%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 168 40% 95%;
+    --sidebar-accent-foreground: 180 30% 15%;
+    --sidebar-border: 168 20% 90%;
+    --sidebar-ring: 174 40% 22%;
+  }
+
+  .dark {
+    --background: 180 30% 8%;
+    --foreground: 168 30% 95%;
+
+    --card: 180 25% 12%;
+    --card-foreground: 168 30% 95%;
+
+    --popover: 180 25% 12%;
+    --popover-foreground: 168 30% 95%;
+
+    --primary: 160 52% 78%;
+    --primary-foreground: 180 30% 15%;
+
+    --secondary: 180 25% 18%;
+    --secondary-foreground: 168 30% 95%;
+
+    --muted: 180 25% 18%;
+    --muted-foreground: 168 20% 60%;
+
+    --accent: 174 35% 35%;
+    --accent-foreground: 168 30% 95%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 168 30% 95%;
+
+    --border: 180 25% 18%;
+    --input: 180 25% 18%;
+    --ring: 160 52% 78%;
+
+    --sidebar-background: 180 25% 10%;
+    --sidebar-foreground: 168 20% 60%;
+    --sidebar-primary: 160 52% 78%;
+    --sidebar-primary-foreground: 180 30% 15%;
+    --sidebar-accent: 180 25% 15%;
+    --sidebar-accent-foreground: 168 30% 95%;
+    --sidebar-border: 180 25% 15%;
+    --sidebar-ring: 160 52% 78%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-poppins;
+  }
+}
+
+
