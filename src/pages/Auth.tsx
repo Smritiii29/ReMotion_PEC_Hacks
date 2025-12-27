@@ -223,6 +223,84 @@
 //   );
 // }
 
+// import { useState } from "react";
+// import { useNavigate } from "react-router-dom";
+// import { Button } from "@/components/ui/button";
+// import { Input } from "@/components/ui/input";
+// import { Label } from "@/components/ui/label";
+// import { cn } from "@/lib/utils";
+
+// // Firebase imports
+// import { signInWithEmailAndPassword } from "firebase/auth";
+// import { doc, getDoc } from "firebase/firestore";
+// import { auth, db } from "@/config/firebase"; // Adjust path if needed
+
+// // Optional: If you have an ErrorMessage component, import it
+// // import ErrorMessage from "@/components/layouts/ErrorMessage";
+
+// export default function AuthPage() {
+//   const navigate = useNavigate();
+//   const [mode, setMode] = useState<"login" | "register">("login");
+//   const [userType, setUserType] = useState<"patient" | "therapist">("patient");
+
+//   // Login form state
+//   const [email, setEmail] = useState("");
+//   const [password, setPassword] = useState("");
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState("");
+
+//   const handleRegister = (e: React.FormEvent) => {
+//     e.preventDefault();
+//     // Existing dummy behavior (can be replaced later with real registration)
+//     navigate("/therapist/patients");
+//   };
+
+//   const handleLogin = async (e: React.FormEvent) => {
+//     e.preventDefault();
+//     setError("");
+//     setLoading(true);
+
+//     try {
+//       // 1️⃣ Firebase Auth login
+//       const userCredential = await signInWithEmailAndPassword(auth, email, password);
+//       const user = userCredential.user;
+
+//       // 2️⃣ Check if user is a Physiotherapist first
+//       const physioSnap = await getDoc(doc(db, "Physiotherapists", user.uid));
+
+//       if (physioSnap.exists()) {
+//         // Physiotherapist → redirect to therapist dashboard
+//         navigate("/therapist/patients"); // or "/physio/dashboard" depending on your routes
+//         return;
+//       }
+
+//       // 3️⃣ Otherwise, check Patients (Users collection)
+//       const userSnap = await getDoc(doc(db, "Users", user.uid));
+
+//       if (!userSnap.exists()) {
+//         throw new Error("User profile not found.");
+//       }
+
+//       const userData = userSnap.data();
+
+//       // 4️⃣ Patient onboarding flow
+//       if (!userData.passwordChanged) {
+//         navigate("/change-password");
+//       } else if (!userData.selected_avatar_id) {
+//         navigate("/patient/onboarding"); // adjust if needed
+//       } else {
+//         navigate("/patient/home"); // or "/patient/dashboard"
+//       }
+//     } catch (err: any) {
+//       console.error("Login failed:", err);
+//       setError("Failed to sign in. Please check your credentials.");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+// src/pages/Auth.tsx
+// Updated login redirects: sequential onboarding via routes
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -233,10 +311,7 @@ import { cn } from "@/lib/utils";
 // Firebase imports
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
-import { auth, db } from "@/config/firebase"; // Adjust path if needed
-
-// Optional: If you have an ErrorMessage component, import it
-// import ErrorMessage from "@/components/layouts/ErrorMessage";
+import { auth, db } from "@/config/firebase";
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -261,20 +336,16 @@ export default function AuthPage() {
     setLoading(true);
 
     try {
-      // 1️⃣ Firebase Auth login
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // 2️⃣ Check if user is a Physiotherapist first
       const physioSnap = await getDoc(doc(db, "Physiotherapists", user.uid));
 
       if (physioSnap.exists()) {
-        // Physiotherapist → redirect to therapist dashboard
-        navigate("/therapist/patients"); // or "/physio/dashboard" depending on your routes
+        navigate("/therapist/patients");
         return;
       }
 
-      // 3️⃣ Otherwise, check Patients (Users collection)
       const userSnap = await getDoc(doc(db, "Users", user.uid));
 
       if (!userSnap.exists()) {
@@ -283,13 +354,13 @@ export default function AuthPage() {
 
       const userData = userSnap.data();
 
-      // 4️⃣ Patient onboarding flow
+      // Sequential onboarding redirects
       if (!userData.passwordChanged) {
-        navigate("/change-password");
+        navigate("/patient/change-password");
       } else if (!userData.selected_avatar_id) {
-        navigate("/patient/onboarding"); // adjust if needed
+        navigate("/patient/avatars");
       } else {
-        navigate("/patient/home"); // or "/patient/dashboard"
+        navigate("/patient/home");
       }
     } catch (err: any) {
       console.error("Login failed:", err);
@@ -298,6 +369,8 @@ export default function AuthPage() {
       setLoading(false);
     }
   };
+
+  // ... rest of the component (UI remains unchanged)
 
   return (
     <div className="flex min-h-screen w-full overflow-hidden bg-white">
