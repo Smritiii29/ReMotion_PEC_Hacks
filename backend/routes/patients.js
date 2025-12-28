@@ -101,7 +101,7 @@
 import { Router } from "express";
 import { db } from "../config/firebaseAdmin.js";
 import admin from "firebase-admin";
-import authMiddleware from "../middleware/authMiddleware.js";
+import authMiddleware from "../middleware/authmiddleware.js";
 
 const patientRouter = Router();
 

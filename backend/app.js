@@ -71,7 +71,7 @@ app.post("/login", async (req, res) => {
     await admin.auth().verifyIdToken(idToken);
 
     res.cookie("authToken", idToken, {
-      path: "/",                     // IMPORTANT
+      // path: "/",                     // IMPORTANT
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",

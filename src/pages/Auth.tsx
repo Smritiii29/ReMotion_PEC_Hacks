@@ -330,47 +330,104 @@ export default function AuthPage() {
     navigate("/therapist/patients");
   };
 
+  // const handleLogin = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   setError("");
+  //   setLoading(true);
+
+  //   try {
+  //     const userCredential = await signInWithEmailAndPassword(auth, email, password);
+  //     const user = userCredential.user;
+
+  //     const physioSnap = await getDoc(doc(db, "Physiotherapists", user.uid));
+
+  //     if (physioSnap.exists()) {
+  //       navigate("/therapist/patients");
+  //       return;
+  //     }
+
+  //     const userSnap = await getDoc(doc(db, "Users", user.uid));
+
+  //     if (!userSnap.exists()) {
+  //       throw new Error("User profile not found.");
+  //     }
+
+  //     const userData = userSnap.data();
+
+  //     // Sequential onboarding redirects
+  //     if (!userData.passwordChanged) {
+  //       navigate("/patient/change-password");
+  //     } else if (!userData.selected_avatar_id) {
+  //       navigate("/patient/avatars");
+  //     } else {
+  //       navigate("/patient/home");
+  //     }
+  //   } catch (err: any) {
+  //     console.error("Login failed:", err);
+  //     setError("Failed to sign in. Please check your credentials.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // // ... rest of the component (UI remains unchanged)
+
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+  e.preventDefault();
+  setError("");
+  setLoading(true);
 
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
+  try {
+    // 1. Firebase client-side login
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
 
-      const physioSnap = await getDoc(doc(db, "Physiotherapists", user.uid));
+    // 2. Get fresh Firebase ID token
+    const idToken = await user.getIdToken();
 
-      if (physioSnap.exists()) {
-        navigate("/therapist/patients");
-        return;
-      }
+    // 3. Send to backend to create HttpOnly session cookie
+    const response = await fetch("http://localhost:3000/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",  // ← Critical: allows cookie to be set
+      body: JSON.stringify({ idToken }),
+    });
 
-      const userSnap = await getDoc(doc(db, "Users", user.uid));
-
-      if (!userSnap.exists()) {
-        throw new Error("User profile not found.");
-      }
-
-      const userData = userSnap.data();
-
-      // Sequential onboarding redirects
-      if (!userData.passwordChanged) {
-        navigate("/patient/change-password");
-      } else if (!userData.selected_avatar_id) {
-        navigate("/patient/avatars");
-      } else {
-        navigate("/patient/home");
-      }
-    } catch (err: any) {
-      console.error("Login failed:", err);
-      setError("Failed to sign in. Please check your credentials.");
-    } finally {
-      setLoading(false);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to create session");
     }
-  };
 
-  // ... rest of the component (UI remains unchanged)
+    // 4. Session cookie is now set! Proceed with role check & redirect
+    const physioSnap = await getDoc(doc(db, "Physiotherapists", user.uid));
+    if (physioSnap.exists()) {
+      navigate("/therapist/patients");
+      return;
+    }
+
+    const userSnap = await getDoc(doc(db, "Users", user.uid));
+    if (!userSnap.exists()) {
+      throw new Error("User profile not found.");
+    }
+
+    const userData = userSnap.data();
+
+    if (!userData.passwordChanged) {
+      navigate("/patient/change-password");
+    } else if (!userData.selected_avatar_id) {
+      navigate("/patient/avatars");
+    } else {
+      navigate("/patient/home");
+    }
+  } catch (err: any) {
+    console.error("Login failed:", err);
+    setError(err.message || "Failed to sign in. Please check your credentials.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="flex min-h-screen w-full overflow-hidden bg-white">
