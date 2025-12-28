@@ -1,0 +1,5 @@
+venv/
+
+reference/
+
+yolov8n-pose.pt
