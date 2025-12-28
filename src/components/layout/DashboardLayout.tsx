@@ -1,5 +1,5 @@
 import { ReactNode, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom"; // Added useNavigate
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   LayoutDashboard, 
   Users, 
@@ -8,19 +8,22 @@ import {
   LogOut,
   Menu,
   X,
-  FileText
+  FileText,
+  Dumbbell // Imported new icon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import Logout from "@/components/accounts/Logout"; // Adjust path as needed
-import { useAuth } from "@/contexts/AuthContext"; // Import useAuth
+import Logout from "@/components/accounts/Logout";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface DashboardLayoutProps {
   children: ReactNode;
 }
 
+// Updated Navigation Items
 const navItems = [
-  { icon: Users, label: "Patients", path: "patients" }, // Relative paths now
+  { icon: Users, label: "Patients", path: "patients" },
+  { icon: Dumbbell, label: "Exercise Plans", path: "exercise-plans" }, // New Item
   { icon: FileText, label: "Reports", path: "reports" },
   { icon: BarChart3, label: "Analytics", path: "analytics" },
   { icon: Settings, label: "Settings", path: "settings" },
@@ -29,7 +32,7 @@ const navItems = [
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { currentUser } = useAuth(); // Optional: for extra safety
+  const { currentUser } = useAuth();
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -76,12 +79,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           {/* Navigation */}
           <nav className="flex-1 p-4 space-y-2">
             {navItems.map((item) => {
-              const isActive = location.pathname === `/therapist/${item.path}`;
+              const isActive = location.pathname.includes(`/therapist/${item.path}`);
 
               return (
                 <Link
                   key={item.path}
-                  to={item.path} // Now relative to /therapist (thanks to nested routes)
+                  to={item.path}
                   className={cn(
                     "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group",
                     isActive
