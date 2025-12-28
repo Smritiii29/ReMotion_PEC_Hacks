@@ -462,7 +462,7 @@ export default function AuthPage() {
             <div className="h-10 w-10 bg-[#ffd4d3] rounded-full flex items-center justify-center shadow-lg">
                <div className="h-4 w-4 bg-[#1b5550] rounded-full" />
             </div>
-            <span className="text-xl text-[#ffd4d3] font-bold tracking-tight">PhysioConnect</span>
+            <span className="text-xl text-[#ffd4d3] font-bold tracking-tight">ReMotion</span>
           </div>
           <h1 className="text-7xl font-extrabold text-[#ffd4d3] mb-6 leading-tight">
             Hello, <br /> welcome!
